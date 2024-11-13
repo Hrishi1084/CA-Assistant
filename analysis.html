@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analysis</title>
+  <style>
+    .center {
+      margin: auto;
+      margin-top: 100px;
+
+    }
+  </style>
+</head>
+
+<script src="chart.js"></script>
+
+<body>
+
+  <canvas id="myChart" class="center" style="width:100%;max-width:600px"></canvas>
+  <canvas id="bar" style="width:100%;max-width:600px"></canvas>
+
+
+  <script>
+
+setPiChart()
+
+    var finalCategories = [];
+
+    function getallDattaOnce() {
+      getCategories();
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', 'get_transaction.php', false);
+
+      xhr.onload = function () {
+        if (xhr.status === 200) {
+          // Parse the JSON response and process the data
+          var transaction = JSON.parse(xhr.responseText);
+
+          console.log(transaction)
+
+          var finalValue = getValue(transaction);
+          setPiChart(finalValue);
+          setBarChart(finalValue);
+
+        } else {
+          console.log("Error fetching transaction.");
+        }
+
+
+      }
+
+      xhr.send();
+
+
+    }
+
+    function getValue(transaction) {
+  
+      var size = finalCategories.length;
+      console.log(size)
+      var arrValue = new Array(size); for (let i = 0; i < size; ++i) arrValue[i] = 0;
+
+      for (var i = 0; i < transaction.length; i++) {
+        var indexNo = parseInt(getIndex(transaction[i]["category"]));
+        var money = parseInt(transaction[i]["money_spend"]);
+        arrValue[indexNo] = arrValue[indexNo] + money;
+      }
+      console.log(arrValue);
+      return arrValue;
+    }
+
+    function getIndex(category) {
+      finalCategories[0]
+      for (var i = 0; i < finalCategories.length; i++) {
+        if (category == finalCategories[i]) {
+          return i;
+        }
+      }
+    }
+
+    function getCategories() {
+
+      var category = [];
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', 'get_categories.php', false);
+
+      xhr.onload = function () {
+        if (xhr.status === 200) {
+          // Parse the JSON response and process the data
+          var categories = JSON.parse(xhr.responseText);
+          console.log(categories);
+
+          // Create an array of categories and fill it with the data received
+          // var categoriesArray = [];
+          for (var i = 0; i < categories.length; i++) {
+            finalCategories.push(categories[i]['category']);
+          }
+          console.log(finalCategories);
+        } else {
+          console.log("Error fetching categories.");
+        }
+      };
+
+      xhr.send();
+
+    }
+
+    window.onload = getallDattaOnce;
+    //---------------------------------------------------------------------------------------------
+
+    function setPiChart(finalValue) {
+
+      var xValues = finalCategories;
+      var yValues = finalValue;
+
+      // var xValues = ["faf","sfsf","saf"];
+      // var yValues = [0 , 10, 50];
+      var barColors = [
+        "#b91d47",
+        "#00aba9",
+        "#2b5797",
+        "#e8c3b9",
+        "#1e7145",
+        "#145001",
+        "#508CBE",
+        "#ADF487",
+        "#1C5CF8",
+        "#FD4BA9",
+        "#BFB541",
+        "#C42D4C",
+        "#2D8960",
+        "#9F0A1E",
+        "#18EC4E",
+        "#4B4151",
+        "#6DAE52",
+        "#76CFDB",
+        "#465742"
+      ];
+
+      var chart = new Chart("myChart", {
+        type: "pie",
+        data: {
+          labels: xValues,
+          datasets: [{
+            backgroundColor: barColors,
+            data: yValues
+          }]
+        },
+
+        options: {
+          title: {
+            display: true,
+            text: "Total Spend",
+          }
+        }
+      });
+    }
+
+    function setBarChart(finalValue) {
+      var xValues = finalCategories;
+      var yValues = finalValue;
+      var barColors = [
+        "#b91d47",
+        "#00aba9",
+        "#2b5797",
+        "#e8c3b9",
+        "#1e7145",
+        "#145001",
+        "#508CBE",
+        "#ADF487",
+        "#1C5CF8",
+        "#FD4BA9",
+        "#BFB541",
+        "#C42D4C",
+        "#2D8960",
+        "#9F0A1E",
+        "#18EC4E",
+        "#4B4151",
+        "#6DAE52",
+        "#76CFDB",
+        "#465742"
+      ];
+      new Chart("bar", {
+        type: "bar",
+        data: {
+          labels: xValues,
+          datasets: [{
+            backgroundColor: barColors,
+            data: yValues
+          }]
+        },
+        options: {
+          legend: { display: false },
+          title: {
+            display: false,
+            text: "Total Spend"
+          }
+        }
+      });
+    }
+
+  </script>
+
+</body>
+
+</html>
